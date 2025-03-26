@@ -74,7 +74,7 @@ namespace ConvertImageToBase64.Tests
         public void ReadFile_FileNotFound_ReturnsNull()
         {
             // Arrange
-            string filePath = @"C:\NonExistentPath\Image.png";
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", "image2.png");
 
             // Act
             byte[] result = ImageHelper.ReadFile(filePath);
