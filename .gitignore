@@ -35,3 +35,37 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Visual Studio files #
+#######################
+.vs/
+.vs2019/
+.vs2017/
+.vs2015/
+.vscode/  # In case you're using VSCode
+.vsconfig
+.idea/  # In case you're using JetBrains IDEs (e.g., Rider)
+
+# User-specific files #
+#######################
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build directories #
+#####################
+bin/
+obj/
+
+# NUGET #
+#########
+# Ignore NuGet packages folder
+# (uncomment if you use a local NuGet repository)
+# .nuget/
+
+# Temporary files #
+###################
+*.tmp
+*.bak
+*.swp

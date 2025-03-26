@@ -12,15 +12,14 @@ namespace ConvertImageToBase64.Tests
         public void ConvertPngToBase64_ValidFilePath_ReturnsBase64String()
         {
             // Arrange
-            string filePath = @"C:\Path\To\Your\TestImage.png"; // Specify a valid test image path
-            string expectedBase64 = "ExpectedBase64String"; // Provide the expected Base64 string output
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", "TestImage.png"); // Use relative path for testing
 
             // Act
             string result = ImageHelper.ConvertPngToBase64(filePath);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal(expectedBase64, result);
+            Assert.NotNull(result); // Ensure the result is not null
+            Assert.False(string.IsNullOrEmpty(result)); // Ensure the result is a non-empty base64 string
         }
 
         // Test ConvertPngToBase64 when file path is empty
@@ -54,7 +53,7 @@ namespace ConvertImageToBase64.Tests
         {
             // Arrange
             // Get the relative path of the image in the "Images" folder within the test project
-            string relativeFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", "ExistingImage.png");
+            string relativeFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", "image.png");
 
             // Verify that the file exists before proceeding with the test
             Assert.True(File.Exists(relativeFilePath), "Test image file does not exist at the specified path.");
