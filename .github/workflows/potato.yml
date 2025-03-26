@@ -54,3 +54,9 @@ jobs:
           git push origin production
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull the latest production branch to local production
+          run: |
+            git fetch origin
+            git checkout production
+            git pull origin production  # Ensure local production is up to date with remote
