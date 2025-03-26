@@ -1,4 +1,4 @@
-name: .NET 8.0 Build and Test
+name: Potato Workflow
 
 on:
   push:
