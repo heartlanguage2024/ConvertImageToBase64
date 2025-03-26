@@ -47,7 +47,6 @@ jobs:
       - name: Merge main into production
         run: |
           git pull origin production 
-          git merge origin/main --no-ff 
 
       - name: Push changes to production
         run: |
