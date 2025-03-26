@@ -25,7 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Images\image.png" />
+    <Content Include="Images\image.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

@@ -209,3 +209,4 @@ C:\Projects\ConvertImageToBase64\ConvertImageToBase64.Tests\obj\Debug\net8.0-win
 C:\Projects\ConvertImageToBase64\ConvertImageToBase64.Tests\obj\Debug\net8.0-windows7.0\ConvertImageToBase64.Tests.pdb
 C:\Projects\ConvertImageToBase64\ConvertImageToBase64.Tests\obj\Debug\net8.0-windows7.0\ConvertImageToBase64.Tests.genruntimeconfig.cache
 C:\Projects\ConvertImageToBase64\ConvertImageToBase64.Tests\obj\Debug\net8.0-windows7.0\ref\ConvertImageToBase64.Tests.dll
+C:\Projects\ConvertImageToBase64\ConvertImageToBase64.Tests\bin\Debug\net8.0-windows7.0\Images\image.png
