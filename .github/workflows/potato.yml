@@ -49,7 +49,7 @@ jobs:
           git checkout production
 
           # Pull the latest changes from production to ensure it's up to date
-          git pull origin production
+          git pull origin production --allow-unrelated-histories
 
           # Merge changes from main to production (or any other logic you prefer)
           git merge main --no-ff --no-edit
