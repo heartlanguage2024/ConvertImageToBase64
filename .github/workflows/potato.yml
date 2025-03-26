@@ -1,0 +1,35 @@
+name: Build and Test C# WPF Project
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch (change as needed)
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests to the main branch (change as needed)
+
+jobs:
+  build:
+    runs-on: self-hosted  # Use your self-hosted runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Checkout the code from your repository
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3  # Install the .NET SDK
+        with:
+          dotnet-version: '6.0'  # Specify the .NET version you're using
+
+      - name: Restore dependencies
+        run: dotnet restore  # Restore NuGet packages
+
+      - name: Build the project
+        run: dotnet build --configuration Release  # Build the project in Release mode
+
+      - name: Run tests (if you have any tests)
+        run: dotnet test  # Run unit tests (if applicable)
+
+      - name: Publish the project (if you want to generate an executable)
+        run: dotnet publish --configuration Release --output ./publish  # Publish the app
+
