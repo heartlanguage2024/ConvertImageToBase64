@@ -15,9 +15,9 @@ namespace ConvertImageToBase64
             InitializeComponent();
 
             string filePath = @"C:\Projects\Image.png"; // Specify the path to your PNG file
-            string base64String = ImageHelper.ConvertPngToBase64(filePath);
+            string? base64String = ImageHelper.ConvertPngToBase64(filePath);
 
-            if (base64String != null)
+            if (!string.IsNullOrEmpty(base64String))
             {
                 Console.WriteLine("Base64 String: ");
                 Console.WriteLine(base64String);
@@ -26,13 +26,13 @@ namespace ConvertImageToBase64
             {
                 Console.WriteLine("Error occurred while converting PNG to Base64.");
             }
-
         }
+
     }
 
     public static class ImageHelper
     {
-        public static string ConvertPngToBase64(string filePath)
+        public static string? ConvertPngToBase64(string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
             {
@@ -42,7 +42,7 @@ namespace ConvertImageToBase64
 
             try
             {
-                byte[] imageBytes = ReadFile(filePath);
+                byte[]? imageBytes = ReadFile(filePath);
                 return imageBytes != null ? ConvertToBase64(imageBytes) : null;
             }
             catch (Exception ex)
@@ -52,7 +52,7 @@ namespace ConvertImageToBase64
             }
         }
 
-        public static byte[] ReadFile(string filePath)
+        public static byte[]? ReadFile(string filePath)
         {
             try
             {
@@ -64,6 +64,7 @@ namespace ConvertImageToBase64
                 return null;
             }
         }
+
 
         public static string ConvertToBase64(byte[] imageBytes)
         {
