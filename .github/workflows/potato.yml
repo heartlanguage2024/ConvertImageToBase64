@@ -34,3 +34,28 @@ jobs:
 
       - name: Run tests
         run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Push to production branch
+        if: success()  # This ensures that this step only runs if the previous steps (including tests) succeed
+        run: |
+          # Configure Git
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Fetch the latest changes from the remote
+          git fetch origin
+
+          # Check out the production branch (assuming it exists)
+          git checkout production
+
+          # Pull the latest changes from production to ensure it's up to date
+          git pull origin production
+
+          # Merge changes from main to production (or any other logic you prefer)
+          git merge main --no-ff --no-edit
+
+          # Push the changes to production
+          git push origin production
+        env:
+          # This is the GitHub token that will authenticate the push to GitHub
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
