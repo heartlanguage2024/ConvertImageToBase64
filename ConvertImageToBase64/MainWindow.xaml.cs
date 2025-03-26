@@ -32,7 +32,7 @@ namespace ConvertImageToBase64
 
     public static class ImageHelper
     {
-        public static string ConvertPngToBase64(string filePath)
+        public static string? ConvertPngToBase64(string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
             {
@@ -42,7 +42,7 @@ namespace ConvertImageToBase64
 
             try
             {
-                byte[] imageBytes = ReadFile(filePath);
+                byte[]? imageBytes = ReadFile(filePath);
                 return imageBytes != null ? ConvertToBase64(imageBytes) : null;
             }
             catch (Exception ex)
@@ -52,7 +52,7 @@ namespace ConvertImageToBase64
             }
         }
 
-        public static byte[] ReadFile(string filePath)
+        public static byte[]? ReadFile(string filePath)
         {
             try
             {
@@ -64,6 +64,7 @@ namespace ConvertImageToBase64
                 return null;
             }
         }
+
 
         public static string ConvertToBase64(byte[] imageBytes)
         {
