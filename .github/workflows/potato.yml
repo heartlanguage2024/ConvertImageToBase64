@@ -44,10 +44,10 @@ jobs:
           git fetch origin
           git checkout production
 
-      - name: Force merge main into production
+      - name: Merge main into production
         run: |
-          git pull origin production --allow-unrelated-histories
-          git merge origin/main --no-ff --no-edit --allow-unrelated-histories
+          git pull origin production 
+          git merge origin/main --no-ff 
 
       - name: Push changes to production
         run: |
