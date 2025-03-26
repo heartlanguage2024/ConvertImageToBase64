@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ConvertImageToBase64.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8a51cdda48055553b9e3021068393688c2b615a8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ddea0b0abda26af17c5a155239b735bb28853146")]
 [assembly: System.Reflection.AssemblyProductAttribute("ConvertImageToBase64.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ConvertImageToBase64.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

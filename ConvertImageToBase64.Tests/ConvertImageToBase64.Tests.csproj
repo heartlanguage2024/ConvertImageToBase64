@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\image.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
@@ -18,6 +22,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ConvertImageToBase64\ConvertImageToBase64.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\image.png" />
   </ItemGroup>
 
   <ItemGroup>

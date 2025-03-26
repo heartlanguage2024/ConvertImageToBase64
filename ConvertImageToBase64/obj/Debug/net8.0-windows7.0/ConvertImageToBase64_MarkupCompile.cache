@@ -4,12 +4,12 @@
 exe
 C#
 .cs
-C:\Projects\ConvertImageToBase64\obj\Debug\net8.0-windows7.0\
+C:\Projects\ConvertImageToBase64\ConvertImageToBase64\obj\Debug\net8.0-windows7.0\
 ConvertImageToBase64
 none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
-C:\Projects\ConvertImageToBase64\App.xaml
+C:\Projects\ConvertImageToBase64\ConvertImageToBase64\App.xaml
 11407045341
 
 41400186557
