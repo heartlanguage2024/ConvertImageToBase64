@@ -12,7 +12,7 @@ namespace ConvertImageToBase64.Tests
         public void ConvertPngToBase64_ValidFilePath_ReturnsBase64String()
         {
             // Arrange
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", "TestImage.png"); // Use relative path for testing
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", "image.png"); // Use relative path for testing
 
             // Act
             string result = ImageHelper.ConvertPngToBase64(filePath);
@@ -38,7 +38,7 @@ namespace ConvertImageToBase64.Tests
         public void ConvertPngToBase64_FileNotFound_ReturnsNull()
         {
             // Arrange
-            string filePath = @"C:\NonExistentPath\Image.png"; // Specify a non-existing file path
+            string filePath = @"C:\NonExistentPath\image.png"; // Specify a non-existing file path
 
             // Act
             string result = ImageHelper.ConvertPngToBase64(filePath);
