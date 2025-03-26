@@ -59,4 +59,4 @@ jobs:
         run: |
          git fetch origin
          git checkout production
-         git pull origin production 
+         git pull origin production # Ensure local production is up to date with remote
