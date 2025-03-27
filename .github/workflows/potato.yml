@@ -82,19 +82,26 @@ jobs:
       - name: Start ngrok and get URL
         run: |
           # Start ngrok to tunnel port 8080 (where Jenkins is running)
-          Start-Process -NoNewWindow -FilePath "ngrok.exe" -ArgumentList "http", "8080", "-log=stdout"
+          Start-Process -NoNewWindow -FilePath "ngrok.exe" -ArgumentList "http", "8080"
           
           # Wait for ngrok to establish the tunnel (increase wait time)
           Start-Sleep -Seconds 15  # Allow more time for ngrok to initialize
 
-          # Check ngrok process status
-          Get-Process -Name "ngrok" -ErrorAction SilentlyContinue
-
           # Check if ngrok API is available
-          $ngrokStatus = Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels" -ErrorAction SilentlyContinue
+          $ngrokStatus = $null
+          $retryCount = 5
+          while ($ngrokStatus -eq $null -and $retryCount -gt 0) {
+              $ngrokStatus = Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels" -ErrorAction SilentlyContinue
+              if ($ngrokStatus -eq $null) {
+                  Write-Host "ngrok API is not available yet, retrying..."
+                  Start-Sleep -Seconds 5  # Wait before retrying
+                  $retryCount--
+              }
+          }
+
           if ($ngrokStatus -eq $null) {
-              Write-Host "ngrok is not running properly."
-              exit 1  # Exit if ngrok is not available
+              Write-Host "ngrok API is not available, exiting..."
+              exit 1  # Exit if ngrok API is not available after retries
           } else {
               Write-Host "ngrok is running, proceeding..."
           }
