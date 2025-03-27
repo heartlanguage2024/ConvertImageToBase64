@@ -54,31 +54,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ✅ Add Jenkins Trigger
+      # ✅ Install ngrok using Chocolatey
+      - name: Install ngrok
+        run: |
+          # Ensure Chocolatey is installed (for fresh runners)
+          Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+          
+          # Install ngrok using Chocolatey
+          choco install ngrok -y
+
+      # ✅ Start ngrok and get URL
       - name: Start ngrok and get URL
         run: |
-          # Download and unzip ngrok (updated URL)
-          Invoke-WebRequest -Uri "https://github.com/ngrok/ngrok/releases/download/v3.1.0/ngrok-stable-windows-amd64.zip" -OutFile "ngrok.zip"
-          Expand-Archive -Path "ngrok.zip" -DestinationPath "ngrok"
-
-          # Start ngrok in the background
-          Start-Process -NoNewWindow -FilePath "./ngrok/ngrok.exe" -ArgumentList "http", "8080"
-
+          # Start ngrok to tunnel port 8080
+          Start-Process -NoNewWindow -FilePath "ngrok.exe" -ArgumentList "http", "8080"
+          
           # Wait for ngrok to establish the tunnel
           Start-Sleep -Seconds 5
 
-          # Get the public ngrok URL
+          # Get the public ngrok URL from the local ngrok API
           $ngrokUrl = (Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels").tunnels[0].public_url
           Write-Output "ngrok URL: $ngrokUrl"
           echo "NGROK_URL=$ngrokUrl" >> $GITHUB_ENV
 
+      # ✅ Trigger Jenkins Job
       - name: Trigger Jenkins Job
         run: |
           $username = 'potato'
           $api_token = '110db95f19398729f40245888ff5f4c220'
           
           # Combine username and API token, and then base64 encode them
-          $credentials = "$username:$api_token"
+          $credentials = "${username}:${api_token}"
           $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($credentials))
           
           # Use the dynamically retrieved ngrok URL to trigger the Jenkins job
