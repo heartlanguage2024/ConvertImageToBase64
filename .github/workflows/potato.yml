@@ -54,20 +54,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # ✅ Add Jenkins Trigger
-      - name: Trigger Jenkins Job
-       run: |
-         $username = 'potato'
-         $api_token = '110db95f19398729f40245888ff5f4c220'
-        
-         # Combine username and API token, and then base64 encode them
-         $credentials = "$username:$api_token"
-         $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($credentials))
-        
-         # Set headers with base64-encoded credentials
-         $headers = @{
-            "Authorization" = "Basic $base64AuthInfo"
-         }
-         # Trigger the Jenkins job
-         Invoke-WebRequest -Uri "https://db53-210-139-66-104.ngrok-free.app/job/potato/build" -Method Post -Headers $headers
-       shell: pwsh
+# ✅ Add Jenkins Trigger
+- name: Trigger Jenkins Job
+  run: |
+    $username = 'potato'
+    $api_token = '110db95f19398729f40245888ff5f4c220'
+    
+    # Combine username and API token, and then base64 encode them
+    $credentials = "$username:$api_token"
+    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($credentials))
+    
+    # Set headers with base64-encoded credentials
+    $headers = @{
+        "Authorization" = "Basic $base64AuthInfo"
+    }
+
+    # Trigger the Jenkins job
+    Invoke-WebRequest -Uri "https://db53-210-139-66-104.ngrok-free.app/job/potato/build" -Method Post -Headers $headers
+  shell: pwsh
