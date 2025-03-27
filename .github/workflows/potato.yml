@@ -56,6 +56,9 @@ jobs:
 
     # ✅ Add Jenkins Trigger
       - name: Trigger Jenkins Job
-        run: |
-          curl -X POST http://192.168.160.1:8080/job/potato/build \
-          --user potato:110db95f19398729f40245888ff5f4c220
+         run: |
+            $headers = @{
+              Authorization = "Basic $(echo -n 'potato:110db95f19398729f40245888ff5f4c220' | base64)"
+            }
+            Invoke-WebRequest -Uri "http://192.168.160.1:8080/job/potato/build" -Method Post -Headers $headers
+         shell: pwsh
