@@ -86,7 +86,7 @@ jobs:
       - name: Start ngrok and get public URL
         run: |
           # Start ngrok in the background
-          Start-Process -NoNewWindow -FilePath "ngrok" -ArgumentList "http", "8080"
+          Start-Process -NoNewWindow -FilePath "ngrok" -ArgumentList "http", "192.168.160.1:8080"
 
           # Wait for ngrok to start (retry every 5 seconds for up to 60 seconds)
           $retries = 12
