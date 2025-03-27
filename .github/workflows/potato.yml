@@ -34,41 +34,33 @@ jobs:
       - name: Run tests
         run: dotnet test --configuration Release --no-build --verbosity normal
 
-      - name: Set up Git credentials
+      - name: Start ngrok and get URL
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          # Install ngrok (if not already installed)
+          curl -s https://bin.equinox.io/c/4VmDzA7iaJ6/ngrok-stable-windows-amd64.zip -o ngrok.zip
+          Expand-Archive ngrok.zip -DestinationPath ngrok
+          ./ngrok.exe http 8080 &
 
-      - name: Fetch and checkout production branch
-        run: |
-          git fetch origin
-          git checkout production
+          # Wait a few seconds for ngrok to initialize
+          Start-Sleep -Seconds 5
 
-      - name: Merge main into production
-        run: |
-          git pull origin production
+          # Get ngrok public URL
+          $ngrokUrl = (Invoke-RestMethod -Uri http://localhost:4040/api/tunnels).tunnels[0].public_url
+          Write-Output "ngrok URL: $ngrokUrl"
+          echo "NGROK_URL=$ngrokUrl" >> $GITHUB_ENV
 
-      - name: Push changes to production
-        run: |
-          git push origin production
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # ✅ Add Jenkins Trigger
       - name: Trigger Jenkins Job
         run: |
           $username = 'potato'
           $api_token = '110db95f19398729f40245888ff5f4c220'
           
           # Combine username and API token, and then base64 encode them
-          $credentials = "${username}:${api_token}"
+          $credentials = "$username:$api_token"
           $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($credentials))
           
-          # Set headers with base64-encoded credentials
-          $headers = @{
+          # Use the dynamically retrieved ngrok URL to trigger the Jenkins job
+          $jenkinsUrl = "${{ secrets.NGROK_URL }}"
+          Invoke-WebRequest -Uri "$jenkinsUrl/job/potato/build" -Method Post -Headers @{
               "Authorization" = "Basic $base64AuthInfo"
           }
-
-          # Trigger the Jenkins job
-          Invoke-WebRequest -Uri "https://db53-210-139-66-104.ngrok-free.app/job/potato/build" -Method Post -Headers $headers
         shell: pwsh
