@@ -1,6 +1,4 @@
-﻿using System.Text;
-using System.Windows;
-using System;
+﻿using System.Windows;
 using System.IO;
 
 namespace ConvertImageToBase64
