@@ -107,11 +107,20 @@ jobs:
               "Authorization" = "Basic $base64AuthInfo"
           }
 
-          # Set the Jenkins job URL
-          $jenkinsUrl = "$ngrokUrl/job/potato/build"  # Combine ngrok URL and Jenkins job endpoint
+          # Fetch the ngrok URL
+          $ngrokUrl = (Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels").tunnels[0].public_url
+          Write-Output "ngrok URL: $ngrokUrl"
+
+          # Ensure the ngrok URL is prefixed with https:// if not already
+          if ($ngrokUrl -notmatch "^https?://") {
+              $ngrokUrl = "https://$ngrokUrl"
+          }
+
+          # Combine ngrok URL and Jenkins job URL path
+          $jenkinsUrl = "$ngrokUrl/job/potato/build"  # Correctly formed URL
 
           Write-Host "Triggering Jenkins job at: $jenkinsUrl"
 
-          # Trigger the Jenkins job using the full URL
+          # Trigger the Jenkins job
           Invoke-WebRequest -Uri $jenkinsUrl -Method Post -Headers $headers
         shell: pwsh
