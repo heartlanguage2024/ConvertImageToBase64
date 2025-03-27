@@ -57,8 +57,8 @@ jobs:
       # ✅ Add Jenkins Trigger
       - name: Start ngrok and get URL
         run: |
-          # Download and unzip ngrok
-          Invoke-WebRequest -Uri "https://bin.equinox.io/c/4VmDzA7iaJ6/ngrok-stable-windows-amd64.zip" -OutFile "ngrok.zip"
+          # Download and unzip ngrok (updated URL)
+          Invoke-WebRequest -Uri "https://github.com/ngrok/ngrok/releases/download/v3.1.0/ngrok-stable-windows-amd64.zip" -OutFile "ngrok.zip"
           Expand-Archive -Path "ngrok.zip" -DestinationPath "ngrok"
 
           # Start ngrok in the background
