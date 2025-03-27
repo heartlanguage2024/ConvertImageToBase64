@@ -53,3 +53,9 @@ jobs:
           git push origin production
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # ✅ Add Jenkins Trigger
+      - name: Trigger Jenkins Job
+        run: |
+          curl -X POST http://192.168.160.1:8080/job/potato/build \
+          --user potato:110db95f19398729f40245888ff5f4c220
