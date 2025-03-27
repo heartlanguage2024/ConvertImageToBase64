@@ -125,6 +125,18 @@ jobs:
           $headers = @{
               "Authorization" = "Basic $base64AuthInfo"
           }
+          
+          # Fetch the public ngrok URL from the local ngrok API
+          $ngrokStatus = Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels"
+          $ngrokUrl = $ngrokStatus.tunnels[0].public_url
+          Write-Output "ngrok URL: $ngrokUrl"
+          echo "NGROK_URL=$ngrokUrl" >> $GITHUB_ENV
+
+          # Ensure the ngrok URL is prefixed with https:// if not already
+          if ($ngrokUrl -notmatch "^https?://") {
+              Write-Host "ngrok URL is malformed. Exiting."
+              exit 1  # Exit the script if ngrok URL is invalid
+          }
 
           # Set the Jenkins job URL
           $jenkinsUrl = "$ngrokUrl/job/potato/build"  # Combine ngrok URL and Jenkins job endpoint
