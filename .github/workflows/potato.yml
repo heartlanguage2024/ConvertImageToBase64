@@ -1,3 +1,15 @@
+name: Potato Workflow
+
+# Event triggers
+on:
+  push:
+    branches:
+      - main  # or any other branches you want to trigger the workflow
+  pull_request:
+    branches:
+      - main  # or any other branches you want to trigger on PRs
+
+
 jobs:
   build:
     runs-on: windows-latest
