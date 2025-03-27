@@ -1,18 +1,20 @@
 name: Potato Workflow
 
-# Event triggers
 on:
   push:
     branches:
-      - main  # or any other branches you want to trigger the workflow
+      - main
   pull_request:
     branches:
-      - main  # or any other branches you want to trigger on PRs
-
+      - main
 
 jobs:
   build:
     runs-on: windows-latest
+
+    strategy:
+      matrix:
+        dotnet-version: [8.0]
 
     steps:
       - name: Checkout code
@@ -44,13 +46,41 @@ jobs:
 
       - name: Merge main into production
         run: |
-          git pull origin production 
+          git pull origin production
 
       - name: Push changes to production
         run: |
           git push origin production
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ✅ Install ngrok using Chocolatey
+      - name: Install ngrok
+        run: |
+          # Ensure Chocolatey is installed (for fresh runners)
+          Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+          
+          # Install ngrok using Chocolatey
+          choco install ngrok -y
+
+      # ✅ Authenticate ngrok with the authtoken
+      - name: Authenticate ngrok
+        run: |
+          ngrok authtoken ${{ secrets.NGROK_AUTHTOKEN }}
+
+      # ✅ Start ngrok and get URL
+      - name: Start ngrok and get URL
+        run: |
+          # Start ngrok to tunnel port 8080
+          Start-Process -NoNewWindow -FilePath "ngrok.exe" -ArgumentList "http", "8080"
+          
+          # Wait for ngrok to establish the tunnel
+          Start-Sleep -Seconds 5
+
+          # Get the public ngrok URL from the local ngrok API
+          $ngrokUrl = (Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels").tunnels[0].public_url
+          Write-Output "ngrok URL: $ngrokUrl"
+          echo "NGROK_URL=$ngrokUrl" >> $GITHUB_ENV
 
       # ✅ Add Jenkins Trigger
       - name: Start ngrok and get public URL
