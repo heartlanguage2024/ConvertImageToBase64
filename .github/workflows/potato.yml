@@ -73,7 +73,7 @@ jobs:
           Start-Sleep -Seconds 5
 
           # Get the public ngrok URL from the local ngrok API
-          $ngrokUrl = (Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels").tunnels[0].public_url
+          $ngrokUrl = (Invoke-RestMethod -Uri "http://localhost:8080/api/tunnels").tunnels[0].public_url
           Write-Output "ngrok URL: $ngrokUrl"
           echo "NGROK_URL=$ngrokUrl" >> $GITHUB_ENV
 
