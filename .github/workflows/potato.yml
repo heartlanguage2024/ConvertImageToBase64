@@ -60,5 +60,5 @@ jobs:
          $headers = @{
            Authorization = "Basic $(echo -n 'potato:110db95f19398729f40245888ff5f4c220' | base64)"
          }
-         Invoke-WebRequest -Uri "http://192.168.160.1:8080/job/potato/build" -Method Post -Headers $headers
+         Invoke-WebRequest -Uri "https://db53-210-139-66-104.ngrok-free.app/job/potato/build" -Method Post -Headers $headers
         shell: pwsh
