@@ -34,18 +34,41 @@ jobs:
       - name: Run tests
         run: dotnet test --configuration Release --no-build --verbosity normal
 
+      - name: Set up Git credentials
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Fetch and checkout production branch
+        run: |
+          git fetch origin
+          git checkout production
+
+      - name: Merge main into production
+        run: |
+          git pull origin production
+
+      - name: Push changes to production
+        run: |
+          git push origin production
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ✅ Add Jenkins Trigger
       - name: Start ngrok and get URL
         run: |
-          # Install ngrok (if not already installed)
-          curl -s https://bin.equinox.io/c/4VmDzA7iaJ6/ngrok-stable-windows-amd64.zip -o ngrok.zip
-          Expand-Archive ngrok.zip -DestinationPath ngrok
-          ./ngrok.exe http 8080 &
+          # Download and unzip ngrok
+          Invoke-WebRequest -Uri "https://bin.equinox.io/c/4VmDzA7iaJ6/ngrok-stable-windows-amd64.zip" -OutFile "ngrok.zip"
+          Expand-Archive -Path "ngrok.zip" -DestinationPath "ngrok"
 
-          # Wait a few seconds for ngrok to initialize
+          # Start ngrok in the background
+          Start-Process -NoNewWindow -FilePath "./ngrok/ngrok.exe" -ArgumentList "http", "8080"
+
+          # Wait for ngrok to establish the tunnel
           Start-Sleep -Seconds 5
 
-          # Get ngrok public URL
-          $ngrokUrl = (Invoke-RestMethod -Uri http://localhost:4040/api/tunnels).tunnels[0].public_url
+          # Get the public ngrok URL
+          $ngrokUrl = (Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels").tunnels[0].public_url
           Write-Output "ngrok URL: $ngrokUrl"
           echo "NGROK_URL=$ngrokUrl" >> $GITHUB_ENV
 
