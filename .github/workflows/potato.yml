@@ -70,5 +70,5 @@ jobs:
           }
 
           # Trigger the Jenkins job
-          Invoke-WebRequest -Uri "https://45df-210-139-66-104.ngrok-free.app/job/potato/build?token=potato-deploy-token" -Method Post -Headers $headers
+          Invoke-WebRequest -Uri "https://c44d-210-139-66-104.ngrok-free.app/job/potato/build?token=potato-deploy-token" -Method Post -Headers $headers
         shell: pwsh
