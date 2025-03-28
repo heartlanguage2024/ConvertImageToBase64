@@ -410,6 +410,7 @@ set NGROK_URL=%NGROK_URL:"=%
 echo ngrok URL: %NGROK_URL%
 
 :: Update the ngrok URL in potato.yml using PowerShell
+:: this 'https://.*?\.ngrok-free\.app' is to find the part in yml at "https://db53-210-139-66-104.ngrok-free.app/job/potato/build"
 powershell -Command "(Get-Content C:\Projects\ConvertImageToBase64\.github\workflows\potato.yml) -replace 'https://.*?\.ngrok-free\.app', '%NGROK_URL%' | Set-Content C:\Projects\ConvertImageToBase64\.github\workflows\potato.yml"
 
 :: Commit and push the updated potato.yml to GitHub
