@@ -58,7 +58,7 @@ jobs:
       - name: Trigger Jenkins Job
         run: |
           $username = 'potato'
-          $api_token = '110db95f19398729f40245888ff5f4c220'
+          $api_token = '11014539924e837f5a8baf9d9824778aff'
           
           # Combine username and API token, and then base64 encode them
           $credentials = "${username}:${api_token}"
@@ -70,5 +70,5 @@ jobs:
           }
 
           # Trigger the Jenkins job
-          Invoke-WebRequest -Uri "https://ed4d-210-139-66-104.ngrok-free.app/job/potato/build?token=potato-deploy-token" -Method Post -Headers $headers
+          Invoke-WebRequest -Uri "https://210d-210-139-66-104.ngrok-free.app/job/potato/build?token=potato-deploy-token" -Method Post -Headers $headers
         shell: pwsh
