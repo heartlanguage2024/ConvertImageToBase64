@@ -54,95 +54,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ✅ Install Jenkins in GitHub Actions
-      - name: Install Jenkins
-        run: |
-          # Install Chocolatey
-          Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-          
-          # Install Jenkins using Chocolatey
-          choco install jenkins -y
-
-      # ✅ Start Jenkins
-      - name: Start Jenkins
-        run: |
-          Start-Service jenkins
-
-      # ✅ Install ngrok using Chocolatey
-      - name: Install ngrok
-        run: |
-          choco install ngrok -y
-
-      # ✅ Authenticate ngrok with the authtoken
-      - name: Authenticate ngrok
-        run: |
-          ngrok authtoken ${{ secrets.NGROK_AUTHTOKEN }}
-
-      # ✅ Start ngrok and get URL
-      - name: Start ngrok and get URL
-        run: |
-          # Start ngrok to tunnel port 8080 (where Jenkins is running)
-          Start-Process -NoNewWindow -FilePath "ngrok.exe" -ArgumentList "http", "8080"
-          
-          # Wait for ngrok to establish the tunnel (increase wait time)
-          Start-Sleep -Seconds 15  # Allow more time for ngrok to initialize
-
-          # Check if ngrok API is available
-          $ngrokStatus = $null
-          $retryCount = 5
-          while ($ngrokStatus -eq $null -and $retryCount -gt 0) {
-              $ngrokStatus = Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels" -ErrorAction SilentlyContinue
-              if ($ngrokStatus -eq $null) {
-                  Write-Host "ngrok API is not available yet, retrying..."
-                  Start-Sleep -Seconds 5  # Wait before retrying
-                  $retryCount--
-              }
-          }
-
-          if ($ngrokStatus -eq $null) {
-              Write-Host "ngrok API is not available, exiting..."
-              exit 1  # Exit if ngrok API is not available after retries
-          } else {
-              Write-Host "ngrok is running, proceeding..."
-          }
-
-          # Get the public ngrok URL from the local ngrok API
-          $ngrokUrl = $ngrokStatus.tunnels[0].public_url
-          Write-Output "ngrok URL: $ngrokUrl"
-          echo "NGROK_URL=$ngrokUrl" >> $GITHUB_ENV
-
-      # ✅ Trigger Jenkins job
+      # ✅ Add Jenkins Trigger
       - name: Trigger Jenkins Job
         run: |
           $username = 'potato'
           $api_token = '110db95f19398729f40245888ff5f4c220'
-
+          
           # Combine username and API token, and then base64 encode them
           $credentials = "${username}:${api_token}"
           $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($credentials))
-
+          
           # Set headers with base64-encoded credentials
           $headers = @{
               "Authorization" = "Basic $base64AuthInfo"
           }
-          
-          # Fetch the public ngrok URL from the local ngrok API
-          $ngrokStatus = Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels"
-          $ngrokUrl = $ngrokStatus.tunnels[0].public_url
-          Write-Output "ngrok URL: $ngrokUrl"
-          echo "NGROK_URL=$ngrokUrl" >> $GITHUB_ENV
 
-          # Ensure the ngrok URL is prefixed with https:// if not already
-          if ($ngrokUrl -notmatch "^https?://") {
-              Write-Host "ngrok URL is malformed. Exiting."
-              exit 1  # Exit the script if ngrok URL is invalid
-          }
-
-          # Set the Jenkins job URL
-          $jenkinsUrl = "$ngrokUrl/job/potato/build"  # Combine ngrok URL and Jenkins job endpoint
-
-          Write-Host "Triggering Jenkins job at: $jenkinsUrl"
-
-          # Trigger the Jenkins job using the full URL
-          Invoke-WebRequest -Uri $jenkinsUrl -Method Post -Headers $headers
+          # Trigger the Jenkins job
+          Invoke-WebRequest -Uri "https://b3d0-210-139-66-104.ngrok-free.app/job/potato/build" -Method Post -Headers $headers
         shell: pwsh
