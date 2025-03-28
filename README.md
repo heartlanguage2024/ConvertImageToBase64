@@ -370,3 +370,57 @@ jobs:
 
 ```
 ---
+# **start_services.bat** to start all the services 
+
+```bat
+@echo off
+echo Starting Jenkins...
+
+:: Start Jenkins in the background
+start /B java -jar jenkins.war --httpPort=8080 --httpListenAddress=0.0.0.0
+
+echo Jenkins started.
+
+:: Wait a few seconds for Jenkins to start
+timeout /t 5
+
+:: Check if Actions Runner is running
+tasklist | find /i "Runner.Listener.exe" > nul
+if %errorlevel% neq 0 (
+    echo GitHub Actions Runner is not running. Starting now...
+    cd /d "C:\Projects\actions-runner"
+    start /B run.cmd
+) else (
+    echo GitHub Actions Runner is already running.
+)
+
+:: Start ngrok and capture the public URL
+echo Starting ngrok...
+start /B ngrok http 8080 > nul 2>&1
+
+:: Wait for ngrok to initialize
+timeout /t 5
+
+:: Fetch the ngrok URL using PowerShell (to handle JSON parsing)
+for /f "delims=" %%A in ('powershell -Command "(Invoke-RestMethod -Uri 'http://127.0.0.1:4040/api/tunnels').tunnels[0].public_url"') do set NGROK_URL=%%A
+
+:: Trim the quotation marks from the URL
+set NGROK_URL=%NGROK_URL:"=%
+
+echo ngrok URL: %NGROK_URL%
+
+:: Update the ngrok URL in potato.yml using PowerShell
+powershell -Command "(Get-Content C:\Projects\ConvertImageToBase64\.github\workflows\potato.yml) -replace 'https://.*?\.ngrok-free\.app', '%NGROK_URL%' | Set-Content C:\Projects\ConvertImageToBase64\.github\workflows\potato.yml"
+
+:: Commit and push the updated potato.yml to GitHub
+cd /d C:\Projects\ConvertImageToBase64
+git add .github\workflows\potato.yml
+git commit -m "Update ngrok URL in potato.yml"
+git push origin main
+
+echo All services are running. The GitHub Actions workflow has been updated.
+pause
+```
+
+
+
