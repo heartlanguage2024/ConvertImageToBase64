@@ -54,7 +54,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ✅ Add Jenkins Trigger
+      # ✁EAdd Jenkins Trigger
       - name: Trigger Jenkins Job
         run: |
           $username = 'potato'
@@ -70,5 +70,5 @@ jobs:
           }
 
           # Trigger the Jenkins job
-          Invoke-WebRequest -Uri "https://b3d0-210-139-66-104.ngrok-free.app/job/potato/build" -Method Post -Headers $headers
+          Invoke-WebRequest -Uri "[{name/job/potato/build" -Method Post -Headers $headers
         shell: pwsh
