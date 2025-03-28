@@ -57,3 +57,95 @@ Get help: [Post in our discussion board](https://github.com/orgs/skills/discussi
 &copy; 2023 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
 
 </footer>
+
+---
+
+## ✅ **How to Move the Runner to Another PC**
+Since you don't have `svc.cmd`, follow these steps:
+
+1. **Unregister the runner from GitHub** (so you can reconfigure it on another PC).  
+   Run this command inside the `actions-runner` folder:
+
+   ```powershell
+   .\config.cmd remove --token <TOKEN>
+   ```
+
+   (Replace `<TOKEN>` with a **removal token** from GitHub → Settings → Actions → Runners → Remove.)
+
+2. **Copy the `actions-runner` folder** to the shared PC.
+
+3. **Set up the runner again** on the shared PC using:
+
+   ```powershell
+   .\config.cmd --url https://github.com/<owner>/<repo> --token <TOKEN>
+   ```
+
+   Replace `<owner>` with your **GitHub username or organization** and `<repo>` with your **repository name**.
+
+4. **Start the runner manually** on the new PC:
+
+   ```powershell
+   .\run.cmd
+   ```
+
+5. **(Optional) Install it as a service** on the new PC:
+
+   ```powershell
+   .\svc.cmd install
+   .\svc.cmd start
+   ```
+---
+
+## **GitHub Actions Runner does not support UNC paths (`\\SharePCName\04_Share\actions-runner`)** when running `run.cmd`.  
+
+### ✅ **Fix: Use a Mapped Drive or Move to a Local Path**
+#### **Option 1: Map the Network Drive and Run Again**
+1. **Map the network folder to a drive letter (e.g., `Z:`)**  
+   Run this command in **PowerShell or CMD**:
+   ```powershell
+   net use Z: \\SharePCName\04_Share
+   ```
+2. **Move to the mapped drive and run the runner**
+   ```powershell
+   cd Z:\actions-runner
+   .\run.cmd
+   ```
+
+---
+
+#### **Option 2: Move Runner to a Local Directory**
+If mapping the drive does not work, move the **GitHub Actions Runner** to a local folder (e.g., `C:\actions-runner`):
+
+1. **Copy files from the network share to a local directory**
+   ```powershell
+   robocopy "\\SharePCName\04_Share\actions-runner" "C:\actions-runner" /E
+   ```
+2. **Run the runner from the local path**
+   ```powershell
+   cd C:\actions-runner
+   .\run.cmd
+   ```
+
+---
+
+### 📌 **Why This Happens**
+- **Windows CMD does not support UNC paths (`\\server\share\...`) as a working directory.**  
+- The error **"Not configured. Run config.(sh/cmd)"** means the runner needs to be configured again.  
+- The runner **must be set up in a local path or on a mapped drive** before execution.
+
+---
+
+### 🔧 **Final Steps**
+If you moved the runner or mapped a drive, you must **reconfigure it** using:
+
+```powershell
+cd C:\actions-runner  # Or Z:\actions-runner
+.\config.cmd
+```
+
+Then, start it again:
+
+```powershell
+.\run.cmd
+```
+
