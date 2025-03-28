@@ -410,14 +410,38 @@ set NGROK_URL=%NGROK_URL:"=%
 echo ngrok URL: %NGROK_URL%
 
 :: Update the ngrok URL in potato.yml using PowerShell
-:: this 'https://.*?\.ngrok-free\.app' is to find the part in yml at "https://db53-210-139-66-104.ngrok-free.app/job/potato/build"
 powershell -Command "(Get-Content C:\Projects\ConvertImageToBase64\.github\workflows\potato.yml) -replace 'https://.*?\.ngrok-free\.app', '%NGROK_URL%' | Set-Content C:\Projects\ConvertImageToBase64\.github\workflows\potato.yml"
 
-:: Commit and push the updated potato.yml to GitHub
+:: Pull the latest changes from origin and merge with local changes
+echo Pulling latest changes from origin main...
 cd /d C:\Projects\ConvertImageToBase64
-git add .github\workflows\potato.yml
-git commit -m "Update ngrok URL in potato.yml"
+git fetch origin
+git pull origin main
+
+:: Check if there was an error while pulling (e.g., merge conflicts)
+if %errorlevel% neq 0 (
+    echo There was an error while pulling from the remote repository. Please resolve any conflicts and try again.
+    pause
+    exit /b
+)
+
+:: Check if a merge is in progress (MERGE_HEAD exists)
+if exist .git\MERGE_HEAD (
+    echo Merge is in progress. Committing the merge...
+    git commit --no-edit
+)
+
+:: Check for uncommitted changes (before merge or after conflict resolution)
+git diff --exit-code > nul
+if %errorlevel% neq 0 (
+    echo Uncommitted changes detected. Committing changes...
+    git add .
+    git commit -m "Auto-commit changes"
+)
+
+:: Push the merged changes to GitHub
 git push origin main
+
 
 echo All services are running. The GitHub Actions workflow has been updated.
 pause
