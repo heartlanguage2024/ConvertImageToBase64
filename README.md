@@ -149,3 +149,224 @@ Then, start it again:
 .\run.cmd
 ```
 
+---
+
+## Potato Workflow with ngrok and Jenkins Installed at Github Actions
+```yml
+name: Potato Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        dotnet-version: [8.0]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build the project
+        run: dotnet build --configuration Release
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Set up Git credentials
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Fetch and checkout production branch
+        run: |
+          git fetch origin
+          git checkout production
+
+      - name: Merge main into production
+        run: |
+          git pull origin production
+
+      - name: Push changes to production
+        run: |
+          git push origin production
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ✅ Install ngrok using Chocolatey
+      - name: Install ngrok
+        run: |
+          # Ensure Chocolatey is installed (for fresh runners)
+          Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+          
+          # Install ngrok using Chocolatey
+          choco install ngrok -y
+
+      # ✅ Authenticate ngrok with the authtoken
+      - name: Authenticate ngrok
+        run: |
+          ngrok authtoken ${{ secrets.NGROK_AUTHTOKEN }}
+
+      # ✅ Start ngrok and get URL
+      - name: Start ngrok and get URL
+        run: |
+          # Start ngrok to tunnel port 8080
+          Start-Process -NoNewWindow -FilePath "ngrok.exe" -ArgumentList "http", "8080"
+          
+          # Wait for ngrok to establish the tunnel
+          Start-Sleep -Seconds 5
+
+          # Get the public ngrok URL from the local ngrok API
+          $ngrokUrl = (Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels").tunnels[0].public_url
+          Write-Output "ngrok URL: $ngrokUrl"
+          echo "NGROK_URL=$ngrokUrl" >> $GITHUB_ENV
+
+      # ✅ Add Jenkins Trigger
+      - name: Start ngrok and get public URL
+        run: |
+          # Start ngrok in the background
+          Start-Process -NoNewWindow -FilePath "ngrok" -ArgumentList "http", "192.168.160.1:8080"
+
+          # Wait for ngrok to start (retry every 5 seconds for up to 60 seconds)
+          $retries = 12
+          $ngrokReady = $false
+          while ($retries -gt 0) {
+              try {
+                  # Try to get the ngrok URL
+                  $tunnels = Invoke-RestMethod -Uri "http://localhost:4040/api/tunnels"
+                  $ngrokUrl = $tunnels.tunnels[0].public_url
+                  $ngrokReady = $true
+                  Write-Host "Ngrok URL: $ngrokUrl"
+                  break
+              } catch {
+                  Write-Host "Waiting for ngrok to be ready..."
+                  Start-Sleep -Seconds 5
+                  $retries--
+              }
+          }
+
+          if (-not $ngrokReady) {
+              Write-Host "Ngrok failed to start after multiple retries."
+              exit 1
+          }
+
+          # Trigger Jenkins job
+          $username = 'potato'
+          $api_token = '110db95f19398729f40245888ff5f4c220'
+
+          # Combine username and API token, and then base64 encode them
+          $credentials = "${username}:${api_token}"
+          $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($credentials))
+
+          # Set headers with base64-encoded credentials
+          $headers = @{
+              "Authorization" = "Basic $base64AuthInfo"
+          }
+
+          # Set the Jenkins job URL
+          $jenkinsUrl = "$ngrokUrl/job/potato/build"  # Combine ngrok URL and Jenkins job endpoint
+
+          Write-Host "Triggering Jenkins job at: $jenkinsUrl"
+
+          # Trigger the Jenkins job using the full URL
+          Invoke-WebRequest -Uri $jenkinsUrl -Method Post -Headers $headers
+        shell: pwsh
+
+```
+---
+
+## Potato Workflow with ngrok and Jenkins Installed at Local Machine
+```yml
+name: Potato Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        dotnet-version: [8.0]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build the project
+        run: dotnet build --configuration Release
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Set up Git credentials
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Fetch and checkout production branch
+        run: |
+          git fetch origin
+          git checkout production
+
+      - name: Merge main into production
+        run: |
+          git pull origin production
+
+      - name: Push changes to production
+        run: |
+          git push origin production
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ✅ Add Jenkins Trigger
+      - name: Trigger Jenkins Job
+        run: |
+          $username = 'potato'
+          $api_token = '110db95f19398729f40245888ff5f4c220'
+          
+          # Combine username and API token, and then base64 encode them
+          $credentials = "${username}:${api_token}"
+          $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($credentials))
+          
+          # Set headers with base64-encoded credentials
+          $headers = @{
+              "Authorization" = "Basic $base64AuthInfo"
+          }
+
+          # Trigger the Jenkins job
+          Invoke-WebRequest -Uri "https://db53-210-139-66-104.ngrok-free.app/job/potato/build" -Method Post -Headers $headers
+        shell: pwsh
+
+```
+---
