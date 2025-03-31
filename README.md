@@ -447,5 +447,90 @@ echo All services are running. The GitHub Actions workflow has been updated.
 pause
 ```
 
+---
 
+# To build and run your test project (`Fw.Test`), follow these steps: 
 
+ 
+
+### **Step 1: Verify the Test Project Type**  
+Check if `Fw.Test` is:  
+- A **C# test project** (`.csproj` using `xUnit`, `NUnit`, or `MSTest`)  
+- A **C++ test project** (`.vcxproj`, likely using Google Test or Boost.Test)  
+
+### **Step 2: Build the Test Project**  
+1. **If `Fw.Test` is a C# test project**  
+   Run:  
+   ```sh
+   dotnet build Fw.Test/Fw.Test.csproj
+   ```
+   or  
+   ```sh
+   msbuild Fw.Test/Fw.Test.csproj /p:Configuration=Debug /p:Platform=x64
+   ```
+
+2. **If `Fw.Test` is a C++ test project**  
+   Run:  
+   ```sh
+   msbuild Fw.sln /p:Configuration=Debug /p:Platform=x64
+   ```
+
+### **Step 3: Run the Tests**  
+1. **If it's a C# test project**  
+   ```sh
+   dotnet test Fw.Test/Fw.Test.csproj
+   ```
+   or  
+   ```sh
+   vstest.console.exe Fw.Test/bin/Debug/netX.XX/Fw.Test.dll
+   ```
+   (Replace `netX.XX` with your .NET version, e.g., `net6.0` or `net8.0`.)
+
+2. **If it's a C++ test project**  
+   - If using **Google Test**, locate and run the compiled test executable:  
+     ```sh
+     Fw.Test\x64\Debug\Fw.Test.exe
+     ```
+   - If using **Boost.Test**, run:  
+     ```sh
+     Fw.Test\x64\Debug\Fw.Test.exe --run_test=all
+     ```
+
+---
+
+## To manage the runner service on Windows:
+
+1. **Stop the Runner Service:**
+   You can stop the GitHub Actions runner by using the Windows service management commands.
+
+   Run the following command to stop the runner service:
+
+   ```powershell
+   Stop-Service -Name "actions.runner.*" -Force
+   ```
+
+   Replace `"actions.runner.*"` with the actual name of your runner service if it is different. You can check the service name by running:
+
+   ```powershell
+   Get-Service | Where-Object { $_.DisplayName -like "*actions.runner*" }
+   ```
+
+2. **Start the Runner Service:**
+   After stopping the service, restart it with:
+
+   ```powershell
+   Start-Service -Name "actions.runner.*"
+   ```
+
+### If you are not using a service and want to run it manually:
+1. **Stop the Runner Process:**
+   If you started the runner manually (via `./run.cmd`), you can simply stop it by closing the terminal or using `Ctrl + C`.
+
+2. **Start it Again:**
+   To start the runner manually again, use the following command:
+
+   ```powershell
+   .\run.cmd
+   ```
+
+---
