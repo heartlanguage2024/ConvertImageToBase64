@@ -1,5 +1,251 @@
 <header>
 
+# Setup Github Actions Step by Step
+
+## **1. Install GitHub CLI (`gh`)**
+You need to install **GitHub CLI** to manage workflows and authentication.  
+
+### **Option 1: Install via Winget (Windows)**
+1. Open **PowerShell** as Administrator.  
+2. Run the following command to install GitHub CLI:  
+   ```powershell
+   winget install --id GitHub.cli
+   ```
+3. If prompted with:  
+   ```
+   すべてのソース契約条件に同意しますか? (Y/N)
+   ```
+   - Type `Y` and press **Enter**.  
+
+4. Verify the installation:  
+   ```powershell
+   gh --version
+   ```
+   If installed successfully, you should see output like:  
+   ```
+   gh version 2.69.0 (2025-03-26)
+   ```
+
+### **Option 2: Install Manually**
+- Download the **GitHub CLI Windows installer** from:  
+  👉 [https://github.com/cli/cli/releases](https://github.com/cli/cli/releases)  
+- Run the `.msi` installer and complete the setup.  
+
+---
+
+## **2. Authenticate GitHub CLI (`gh auth login`)**
+After installing, you need to **log in** to GitHub CLI.  
+
+1. In **PowerShell** or **CMD**, run:  
+   ```powershell
+   gh auth login
+   ```
+2. You'll be asked:  
+   ```
+   Authenticate Git with your GitHub credentials? (Y/n)
+   ```
+   - Type **`Y`** and press **Enter**.  
+
+3. Select the authentication method:  
+   ```
+   How would you like to authenticate GitHub CLI?
+   > Login with a web browser
+   > Paste an authentication token
+   ```
+   - Select **Login with a web browser** (press **Enter**).  
+
+4. Follow the instructions to **authorize GitHub CLI**.  
+
+5. Verify authentication:  
+   ```powershell
+   gh auth status
+   ```
+   If successful, you will see:  
+   ```
+   Logged in to github.com as your-username
+   ```
+
+### **(Optional) Disable Authentication**
+If you want to **log out** later, run:  
+```powershell
+gh auth logout
+```
+
+---
+
+## **3. Initialize Git Repository & Ignore Unnecessary Files**
+1. Open a **terminal (PowerShell, CMD, or Git Bash)**.  
+2. Navigate to your project folder:  
+   ```powershell
+   cd C:\Projects\ConvertImageToBase64
+   ```
+3. Initialize Git (if not already initialized):  
+   ```powershell
+   git init
+   ```
+
+### **Modify `.gitignore` to Ignore Unwanted Files**
+Update your `.gitignore` file (`C:\Projects\ConvertImageToBase64\.gitignore`) to **ignore VS files** and **cache files**:  
+
+```plaintext
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.db
+*.opendb
+
+# Build output
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+.DS_Store
+```
+
+Commit your changes:  
+```powershell
+git add .gitignore
+git commit -m "Updated .gitignore"
+```
+
+---
+
+## **4. Fix Git Add Permission Errors**
+If you see an error like:  
+```
+error: open(".vs/ConvertImageToBase64/FileContentIndex/..."): Permission denied
+```
+### **Solution**
+1. Close **Visual Studio** (VS might be locking the files).  
+2. Run in **PowerShell** (to remove the locked files from tracking):  
+   ```powershell
+   git rm -r --cached .vs/
+   ```
+3. Add `.vs/` to `.gitignore` and commit:  
+   ```powershell
+   git add .gitignore
+   git commit -m "Ignore .vs/ files"
+   ```
+
+---
+
+## **5. Verify & Run GitHub Actions Workflows**
+### **Check Available Workflows**
+To list all workflows:  
+```powershell
+gh workflow list
+```
+If you see multiple workflows like:  
+```
+0-welcome.yml
+1-create-a-workflow.yml
+2-add-a-job.yml
+...
+potato.yml
+```
+
+### **Run a Specific Workflow**
+If you want to run `potato.yml`:  
+```powershell
+gh workflow run potato.yml
+```
+
+---
+
+## **6. Create a GitHub Actions Workflow (`potato.yml`)**
+Inside `.github/workflows/potato.yml`, create a **GitHub Actions workflow** to **build and test** your WPF project:  
+
+```yaml
+name: Build and Test WPF App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # Allows manual execution
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # Adjust based on your project
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build the project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-restore --verbosity normal
+```
+
+Commit and push this file:  
+```powershell
+git add .github/workflows/potato.yml
+git commit -m "Add GitHub Actions workflow"
+git push origin main
+```
+
+---
+
+## **7. Verify Workflow Execution**
+After pushing, check the **GitHub Actions** tab in your repository:  
+👉 **GitHub → Your Repo → Actions**
+
+If you want to **manually trigger** the workflow:  
+```powershell
+gh workflow run potato.yml
+```
+
+---
+
+## **8. Understand Build Steps in GitHub Actions**
+By default, GitHub Actions include **built-in steps** like:  
+
+1. **Set up job** ✅ (automatically done by GitHub Actions)  
+2. **Checkout code** ✅ (`actions/checkout`)  
+3. **Set up .NET SDK** ✅ (`actions/setup-dotnet`)  
+4. **Restore dependencies** ✅ (`dotnet restore`)  
+5. **Build the project** ✅ (`dotnet build`)  
+6. **Run tests** ✅ (`dotnet test`)  
+7. **Post Checkout Code** (automatically cleans up)  
+8. **Complete job** (marks workflow as finished)  
+
+You **only need to define steps from `Checkout code` onwards** in `potato.yml`.
+
+---
+
+## **Summary of All Steps**
+✅ **1. Install GitHub CLI (`gh`)**  
+✅ **2. Authenticate (`gh auth login`)**  
+✅ **3. Initialize Git & Ignore VS Files (`.gitignore`)**  
+✅ **4. Fix Git Errors (`Permission Denied` on .vs/)**  
+✅ **5. Check & Run Workflows (`gh workflow list`)**  
+✅ **6. Create & Push `potato.yml` Workflow**  
+✅ **7. Verify & Debug in GitHub Actions**  
+✅ **8. Understand Built-in Steps in GitHub Actions**  
+
+---
+
+
+
+
 # Hello GitHub Actions
 
 _Create and run a GitHub Actions workflow._
